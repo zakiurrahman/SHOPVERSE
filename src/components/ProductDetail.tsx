@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AtSign, MessageCircle, Star } from "lucide-react";
+import { AtSign, MessageCircle } from "lucide-react";
 import type { Product } from "@/data/products";
 import { contactChannels, instagramChannels } from "@/data/contact";
 import { formatPrice } from "@/lib/format";
@@ -85,12 +85,6 @@ export function ProductDetail({ product, related }: Props) {
             <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-bold tracking-tight md:text-5xl">
               {product.name}
             </h1>
-
-            <div className="mt-4 flex items-center gap-2 text-sm text-[var(--ink-soft)]">
-              <Star size={16} className="fill-[var(--warm)] text-[var(--warm)]" />
-              <span className="font-semibold">{product.rating}</span>
-              <span className="text-[var(--muted)]">· {product.reviews} reviews</span>
-            </div>
 
             <p className="mt-5 text-3xl font-semibold text-[var(--forest)]">
               {formatPrice(product.price)}

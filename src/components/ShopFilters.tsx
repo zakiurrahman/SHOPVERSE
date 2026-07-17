@@ -81,7 +81,6 @@ export function ShopFilters() {
             <option value="featured">Featured</option>
             <option value="price-asc">Price · Low to high</option>
             <option value="price-desc">Price · High to low</option>
-            <option value="rating">Top rated</option>
           </select>
         </div>
       </div>
