@@ -51,26 +51,12 @@ export function Hero() {
           </motion.div>
 
           <motion.p
-            initial={reduce ? false : { opacity: 0, y: 20 }}
+            initial={reduce ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="font-[family-name:var(--font-display)] text-[clamp(2.55rem,13vw,4.5rem)] font-bold leading-none tracking-[-0.055em] text-[var(--ink)] md:text-7xl lg:text-8xl"
+            className="font-[family-name:var(--font-display)] whitespace-nowrap text-[clamp(2.4rem,7.2vw,5.5rem)] font-bold leading-none tracking-[-0.055em] text-[var(--ink)]"
           >
-            {storeInfo.brand.split("").map((char, i) => (
-              <motion.span
-                key={`${char}-${i}`}
-                className="inline-block"
-                initial={reduce ? false : { opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: 0.04 * i,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                {char}
-              </motion.span>
-            ))}
+            {storeInfo.brand}
           </motion.p>
 
           <motion.h1
