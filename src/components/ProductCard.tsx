@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/lib/format";
+import { ProductImage } from "./ProductImage";
 
 type Props = {
   product: Product;
@@ -35,7 +35,7 @@ export function ProductCard({ product, index = 0 }: Props) {
             whileHover={reduce ? undefined : { scale: 1.08 }}
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Image
+            <ProductImage
               src={product.image}
               alt={product.name}
               fill

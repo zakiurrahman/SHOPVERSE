@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,6 +7,7 @@ import { AtSign, MessageCircle, Star } from "lucide-react";
 import type { Product } from "@/data/products";
 import { contactChannels, instagramChannels } from "@/data/contact";
 import { formatPrice } from "@/lib/format";
+import { ProductImage } from "./ProductImage";
 import { ProductCard } from "./ProductCard";
 import { Reveal } from "./Motion";
 
@@ -43,7 +43,7 @@ export function ProductDetail({ product, related }: Props) {
                   transition={{ duration: 0.35 }}
                   className="absolute inset-0"
                 >
-                  <Image
+                  <ProductImage
                     src={activeImage}
                     alt={product.name}
                     fill
@@ -68,7 +68,7 @@ export function ProductDetail({ product, related }: Props) {
                         : "border-transparent opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <Image src={src} alt="" fill sizes="120px" className="object-cover" />
+                    <ProductImage src={src} alt="" fill sizes="120px" className="object-cover" />
                   </button>
                 ))}
               </div>

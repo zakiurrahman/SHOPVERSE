@@ -1,13 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Plus, Trash2, LogOut } from "lucide-react";
+import { ImagePlus, Pencil, Plus, Trash2, LogOut, Upload } from "lucide-react";
 import { categories, type Product, type ProductCategory } from "@/data/products";
 import { formatPrice } from "@/lib/format";
+import { fileToCompressedDataUrl, isDataImage } from "@/lib/image-upload";
 import { storeInfo } from "@/data/contact";
+import { ProductImage } from "@/components/ProductImage";
 
 type FormState = {
   name: string;
@@ -43,8 +44,10 @@ export default function AdminDashboardPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     const me = await fetch("/api/admin/me");
@@ -114,8 +117,29 @@ export default function AdminDashboardPage() {
     await load();
   }
 
+  async function onImageFileChange(file: File | null) {
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    setMessage("");
+    try {
+      const dataUrl = await fileToCompressedDataUrl(file);
+      setForm((f) => ({ ...f, image: dataUrl }));
+      setMessage("Image uploaded and compressed. Ready to save.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not upload image");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!form.image.trim()) {
+      setError("Please upload an image or paste an image URL");
+      return;
+    }
     setSaving(true);
     setError("");
     setMessage("");
@@ -230,7 +254,7 @@ export default function AdminDashboardPage() {
         </label>
 
         <label className="block text-sm">
-          <span className="font-semibold">Price (USD) *</span>
+          <span className="font-semibold">Price (AED) *</span>
           <input
             required
             type="number"
@@ -270,16 +294,67 @@ export default function AdminDashboardPage() {
           />
         </label>
 
-        <label className="block text-sm md:col-span-2">
-          <span className="font-semibold">Image URL *</span>
-          <input
-            required
-            value={form.image}
-            onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-            className="mt-2 w-full border border-[var(--line)] bg-[var(--input-bg)] px-3 py-2.5 outline-none focus:border-[var(--forest)]"
-            placeholder="https://… or /products/my-photo.jpg"
-          />
-        </label>
+        <div className="md:col-span-2 space-y-3">
+          <p className="text-sm font-semibold">Product image *</p>
+          <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
+            <div className="relative aspect-square overflow-hidden border border-[var(--line)] bg-[var(--bg)]">
+              {form.image ? (
+                <ProductImage src={form.image} alt="Preview" fill className="object-cover" />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--muted)]">
+                  <ImagePlus size={28} />
+                  <span className="text-xs">No image</span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <button
+                  type="button"
+                  className="btn-ghost text-sm"
+                  disabled={uploading || saving}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload size={16} />
+                  {uploading ? "Compressing…" : "Upload from device"}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  className="hidden"
+                  onChange={(e) => onImageFileChange(e.target.files?.[0] || null)}
+                />
+                <p className="mt-2 text-xs text-[var(--muted)]">
+                  JPG, PNG, or WebP · under 8 MB · auto-compressed for storage
+                </p>
+              </div>
+
+              <label className="block text-sm">
+                <span className="font-semibold">Or paste image URL</span>
+                <input
+                  value={isDataImage(form.image) ? "" : form.image}
+                  onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+                  className="mt-2 w-full border border-[var(--line)] bg-[var(--input-bg)] px-3 py-2.5 outline-none focus:border-[var(--forest)]"
+                  placeholder="https://… or /products/my-photo.jpg"
+                />
+                {isDataImage(form.image) && (
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+                    <span className="text-[var(--forest)]">Uploaded image ready</span>
+                    <button
+                      type="button"
+                      className="font-semibold text-[var(--accent)] underline-offset-2 hover:underline"
+                      onClick={() => setForm((f) => ({ ...f, image: "" }))}
+                    >
+                      Remove image
+                    </button>
+                  </div>
+                )}
+              </label>
+            </div>
+          </div>
+        </div>
 
         <label className="block text-sm md:col-span-2">
           <span className="font-semibold">Description *</span>
@@ -336,7 +411,7 @@ export default function AdminDashboardPage() {
         </label>
 
         <div className="md:col-span-2">
-          <button type="submit" className="btn-accent" disabled={saving}>
+          <button type="submit" className="btn-accent" disabled={saving || uploading}>
             {editingId ? <Pencil size={16} /> : <Plus size={16} />}
             {saving ? "Saving…" : editingId ? "Update product" : "List product"}
           </button>
@@ -355,7 +430,7 @@ export default function AdminDashboardPage() {
             >
               <div className="flex gap-4">
                 <div className="relative h-20 w-16 shrink-0 overflow-hidden bg-[var(--bg)]">
-                  <Image
+                  <ProductImage
                     src={product.image}
                     alt={product.name}
                     fill
