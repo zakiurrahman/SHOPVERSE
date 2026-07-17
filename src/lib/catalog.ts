@@ -22,10 +22,25 @@ function filePath() {
   return path.join(process.cwd(), "data", "products.json");
 }
 
+/** Supports both Upstash native vars and Vercel Marketplace KV_* aliases. */
+function redisCredentials() {
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || "";
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || "";
+  if (!url || !token) return null;
+  return { url, token };
+}
+
 function hasRedis() {
-  return Boolean(
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN,
-  );
+  return Boolean(redisCredentials());
+}
+
+async function getRedis() {
+  const creds = redisCredentials();
+  if (!creds) throw new Error("Redis credentials are not configured");
+  const { Redis } = await import("@upstash/redis");
+  return new Redis(creds);
 }
 
 export function persistenceMode(): "redis" | "file" | "memory" {
@@ -52,15 +67,13 @@ async function writeFileCatalog(products: Product[]) {
 }
 
 async function readRedisCatalog(): Promise<Product[] | null> {
-  const { Redis } = await import("@upstash/redis");
-  const redis = Redis.fromEnv();
+  const redis = await getRedis();
   const data = await redis.get<Product[]>(CATALOG_KEY);
   return Array.isArray(data) && data.length > 0 ? data : null;
 }
 
 async function writeRedisCatalog(products: Product[]) {
-  const { Redis } = await import("@upstash/redis");
-  const redis = Redis.fromEnv();
+  const redis = await getRedis();
   await redis.set(CATALOG_KEY, products);
 }
 
