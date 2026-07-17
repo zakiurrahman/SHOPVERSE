@@ -11,7 +11,7 @@ function secretKey() {
   return new TextEncoder().encode(secret);
 }
 
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!pathname.startsWith("/admin")) {
