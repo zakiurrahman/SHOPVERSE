@@ -1,0 +1,281 @@
+export type ProductCategory =
+  | "handbags"
+  | "suits"
+  | "clothing"
+  | "footwear"
+  | "accessories";
+
+export type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  category: ProductCategory;
+  rating: number;
+  reviews: number;
+  description: string;
+  details: string[];
+  colors: string[];
+  image: string;
+  gallery: string[];
+  featured?: boolean;
+  badge?: string;
+};
+
+/** Initial catalog — also used if products.json is empty. After that, admin edits win. */
+export const seedProducts: Product[] = [
+  {
+    id: "1",
+    slug: "velvet-tote-bag",
+    name: "Velvet Tote Bag",
+    price: 120,
+    category: "handbags",
+    rating: 4.8,
+    reviews: 86,
+    description:
+      "Spacious everyday tote with soft velvet finish and gold-tone hardware. Fits a laptop, wallet, and the day's essentials.",
+    details: [
+      "Velvet exterior · lined interior",
+      "Inner zip pocket + phone slip",
+      "Detachable shoulder strap",
+      "Magnetic top closure",
+    ],
+    colors: ["Wine", "Black", "Camel"],
+    image:
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=1200&q=80",
+    ],
+    featured: true,
+    badge: "Bestseller",
+  },
+  {
+    id: "2",
+    slug: "emerald-three-piece-suit",
+    name: "Emerald Three-Piece Suit",
+    price: 280,
+    category: "suits",
+    rating: 4.9,
+    reviews: 42,
+    description:
+      "Tailored three-piece set — jacket, waistcoat, and trousers. Structured shoulders with a modern slim fit.",
+    details: [
+      "Jacket + waistcoat + trousers",
+      "Wool-blend fabric",
+      "Fully lined jacket",
+      "Available in standard sizes",
+    ],
+    colors: ["Emerald", "Navy", "Charcoal"],
+    image:
+      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=80",
+    ],
+    featured: true,
+    badge: "New",
+  },
+  {
+    id: "3",
+    slug: "linen-summer-kurta-set",
+    name: "Linen Summer Kurta Set",
+    price: 95,
+    category: "clothing",
+    rating: 4.7,
+    reviews: 118,
+    description:
+      "Breathable linen kurta with matching bottoms. Soft wash, easy drape — made for warm days and evenings out.",
+    details: [
+      "100% linen feel blend",
+      "Kurta + matching trousers",
+      "Side slits · button front",
+      "Relaxed tailored fit",
+    ],
+    colors: ["Ivory", "Sage", "Sky"],
+    image:
+      "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1200&q=80",
+    ],
+    featured: true,
+  },
+  {
+    id: "4",
+    slug: "classic-leather-crossbody",
+    name: "Classic Leather Crossbody",
+    price: 89,
+    category: "handbags",
+    rating: 4.6,
+    reviews: 154,
+    description:
+      "Compact crossbody in genuine-feel leather. Adjustable strap and zip compartments for daily errands.",
+    details: [
+      "Adjustable crossbody strap",
+      "Main zip + front pocket",
+      "Card slots inside",
+      "Lightweight daily carry",
+    ],
+    colors: ["Tan", "Black", "Burgundy"],
+    image:
+      "https://images.unsplash.com/photo-1548036328-c1033b363036?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1548036328-c1033b363036?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?auto=format&fit=crop&w=1200&q=80",
+    ],
+    featured: true,
+  },
+  {
+    id: "5",
+    slug: "navy-formal-three-piece",
+    name: "Navy Formal Three-Piece",
+    price: 310,
+    category: "suits",
+    rating: 4.8,
+    reviews: 67,
+    description:
+      "Wedding-and-office ready three-piece in deep navy. Clean lines, contrast buttons, and a sharp silhouette.",
+    details: [
+      "Full three-piece set",
+      "Peak lapel jacket",
+      "Matching waistcoat",
+      "Tapered trousers",
+    ],
+    colors: ["Navy", "Midnight"],
+    image:
+      "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=1200&q=80",
+    ],
+    featured: true,
+    badge: "Formal",
+  },
+  {
+    id: "6",
+    slug: "silk-scarf-collection",
+    name: "Silk Scarf — Aurora",
+    price: 45,
+    category: "accessories",
+    rating: 4.5,
+    reviews: 203,
+    description:
+      "Lightweight printed scarf you can wear as a neck wrap, hijab accent, or bag charm.",
+    details: [
+      "Soft silk-feel fabric",
+      "90 × 90 cm",
+      "Printed edges",
+      "Hand-wash recommended",
+    ],
+    colors: ["Aurora", "Ivory", "Rose"],
+    image:
+      "https://images.unsplash.com/photo-1601924999988-1a45fd74f3a3?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1601924999988-1a45fd74f3a3?auto=format&fit=crop&w=1200&q=80",
+    ],
+    featured: true,
+  },
+  {
+    id: "7",
+    slug: "urban-street-sneakers",
+    name: "Urban Street Sneakers",
+    price: 99,
+    category: "footwear",
+    rating: 4.6,
+    reviews: 98,
+    description:
+      "Everyday sneakers with a clean silhouette. Soft overlays and all-day cushioning.",
+    details: [
+      "Memory-foam insole",
+      "Breathable upper",
+      "Durable outsole",
+      "Lace-up fit",
+    ],
+    colors: ["White", "Black", "Grey"],
+    image:
+      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=1200&q=80",
+    ],
+    featured: true,
+  },
+  {
+    id: "8",
+    slug: "evening-clutch-noir",
+    name: "Evening Clutch Noir",
+    price: 65,
+    category: "handbags",
+    rating: 4.4,
+    reviews: 71,
+    description:
+      "Sleek hard-case clutch for dinners and events. Removable chain strap included.",
+    details: [
+      "Snap clasp closure",
+      "Chain strap included",
+      "Satin lining",
+      "Fits phone + lipstick + cards",
+    ],
+    colors: ["Noir", "Gold", "Emerald"],
+    image:
+      "https://images.unsplash.com/photo-1564422170194-896b89122ea9?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1564422170194-896b89122ea9?auto=format&fit=crop&w=1200&q=80",
+    ],
+  },
+  {
+    id: "9",
+    slug: "cotton-shirt-dress",
+    name: "Cotton Shirt Dress",
+    price: 78,
+    category: "clothing",
+    rating: 4.7,
+    reviews: 92,
+    description:
+      "Midi shirt dress with a belted waist. Soft cotton, button front, and side slits for easy movement.",
+    details: [
+      "Soft cotton fabric",
+      "Removable belt",
+      "Button-down front",
+      "Midi length",
+    ],
+    colors: ["White", "Olive", "Rust"],
+    image:
+      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=1200&q=80",
+    ],
+    featured: true,
+  },
+  {
+    id: "10",
+    slug: "pearl-drop-earrings",
+    name: "Pearl Drop Earrings",
+    price: 38,
+    category: "accessories",
+    rating: 4.9,
+    reviews: 210,
+    description:
+      "Lightweight pearl drops with gold-tone finish. Everyday elegance or event-ready.",
+    details: [
+      "Hypoallergenic posts",
+      "Lightweight wear",
+      "Gift-ready pouch",
+      "Pair sold together",
+    ],
+    colors: ["Pearl / Gold"],
+    image:
+      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=80",
+    ],
+  },
+];
+
+export const categories: { value: ProductCategory | "all"; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "handbags", label: "Handbags" },
+  { value: "suits", label: "Suits" },
+  { value: "clothing", label: "Clothing" },
+  { value: "footwear", label: "Footwear" },
+  { value: "accessories", label: "Accessories" },
+];
