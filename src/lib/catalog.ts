@@ -49,13 +49,14 @@ export function persistenceMode(): "redis" | "file" | "memory" {
   return "memory";
 }
 
+/** Returns the stored catalog, or null only if the store was never written. An empty array is valid (admin deleted everything). */
 async function readFileCatalog(): Promise<Product[] | null> {
   try {
     const raw = await fs.readFile(filePath(), "utf8");
     const parsed = JSON.parse(raw) as Product[];
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (Array.isArray(parsed)) return parsed;
   } catch {
-    // missing / empty
+    // file missing / unreadable — never initialized
   }
   return null;
 }
@@ -69,7 +70,8 @@ async function writeFileCatalog(products: Product[]) {
 async function readRedisCatalog(): Promise<Product[] | null> {
   const redis = await getRedis();
   const data = await redis.get<Product[]>(CATALOG_KEY);
-  return Array.isArray(data) && data.length > 0 ? data : null;
+  // null = key never written; an empty array is a valid, intentionally empty catalog
+  return Array.isArray(data) ? data : null;
 }
 
 async function writeRedisCatalog(products: Product[]) {
@@ -82,22 +84,23 @@ export async function getCatalog(): Promise<Product[]> {
 
   if (hasRedis()) {
     const fromRedis = await readRedisCatalog();
-    if (fromRedis) {
+    if (fromRedis !== null) {
       store.products = fromRedis;
       return structuredClone(fromRedis);
     }
   }
 
-  if (store.products?.length) {
+  if (store.products !== undefined) {
     return structuredClone(store.products);
   }
 
   const fromFile = await readFileCatalog();
-  if (fromFile) {
+  if (fromFile !== null) {
     store.products = fromFile;
     return structuredClone(fromFile);
   }
 
+  // First run ever: seed the sample catalog once.
   store.products = structuredClone(seedProducts);
   if (!process.env.VERCEL || hasRedis()) {
     await saveCatalog(store.products);
