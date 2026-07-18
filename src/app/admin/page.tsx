@@ -18,7 +18,7 @@ type FormState = {
   details: string;
   colors: string;
   image: string;
-  gallery: string;
+  gallery: string[];
   featured: boolean;
   badge: string;
 };
@@ -31,7 +31,7 @@ const emptyForm: FormState = {
   details: "",
   colors: "",
   image: "",
-  gallery: "",
+  gallery: [],
   featured: true,
   badge: "",
 };
@@ -47,7 +47,9 @@ export default function AdminDashboardPage() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [galleryUrlInput, setGalleryUrlInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     const me = await fetch("/api/admin/me");
@@ -88,16 +90,18 @@ export default function AdminDashboardPage() {
       details: product.details.join("\n"),
       colors: product.colors.join(", "),
       image: product.image,
-      gallery: product.gallery.join("\n"),
+      gallery: product.gallery.filter((src) => src !== product.image),
       featured: Boolean(product.featured),
       badge: product.badge || "",
     });
+    setGalleryUrlInput("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function resetForm() {
     setEditingId(null);
     setForm(emptyForm);
+    setGalleryUrlInput("");
   }
 
   async function onLogout() {
@@ -132,6 +136,41 @@ export default function AdminDashboardPage() {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  }
+
+  async function onGalleryFilesChange(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    setError("");
+    setMessage("");
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(files).slice(0, 6)) {
+        uploaded.push(await fileToCompressedDataUrl(file));
+      }
+      setForm((f) => ({ ...f, gallery: [...f.gallery, ...uploaded] }));
+      setMessage(
+        uploaded.length === 1
+          ? "Gallery photo added. Ready to save."
+          : `${uploaded.length} gallery photos added. Ready to save.`,
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not upload gallery images");
+    } finally {
+      setUploading(false);
+      if (galleryInputRef.current) galleryInputRef.current.value = "";
+    }
+  }
+
+  function addGalleryUrl() {
+    const url = galleryUrlInput.trim();
+    if (!url) return;
+    setForm((f) => (f.gallery.includes(url) ? f : { ...f, gallery: [...f.gallery, url] }));
+    setGalleryUrlInput("");
+  }
+
+  function removeGalleryItem(index: number) {
+    setForm((f) => ({ ...f, gallery: f.gallery.filter((_, i) => i !== index) }));
   }
 
   async function onSubmit(e: FormEvent) {
@@ -390,16 +429,77 @@ export default function AdminDashboardPage() {
           />
         </label>
 
-        <label className="block text-sm md:col-span-2">
-          <span className="font-semibold">Extra gallery URLs (one per line)</span>
-          <textarea
-            rows={2}
-            value={form.gallery}
-            onChange={(e) => setForm((f) => ({ ...f, gallery: e.target.value }))}
-            className="mt-2 w-full border border-[var(--line)] bg-[var(--input-bg)] px-3 py-2.5 outline-none focus:border-[var(--forest)]"
-            placeholder="Optional extra photos"
-          />
-        </label>
+        <div className="md:col-span-2 space-y-3">
+          <p className="text-sm font-semibold">Extra gallery photos (optional)</p>
+
+          {form.gallery.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+              {form.gallery.map((src, index) => (
+                <div
+                  key={`${src.slice(0, 40)}-${index}`}
+                  className="group/thumb relative aspect-square overflow-hidden border border-[var(--line)] bg-[var(--bg)]"
+                >
+                  <ProductImage src={src} alt={`Gallery ${index + 1}`} fill className="object-cover" />
+                  <button
+                    type="button"
+                    aria-label="Remove gallery photo"
+                    onClick={() => removeGalleryItem(index)}
+                    className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--accent)] text-white opacity-90 transition-opacity hover:opacity-100"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              className="btn-ghost text-sm"
+              disabled={uploading || saving}
+              onClick={() => galleryInputRef.current?.click()}
+            >
+              <Upload size={16} />
+              {uploading ? "Compressing…" : "Upload from device"}
+            </button>
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/jpg"
+              multiple
+              className="hidden"
+              onChange={(e) => onGalleryFilesChange(e.target.files)}
+            />
+            <span className="text-xs text-[var(--muted)]">
+              Up to 6 photos at a time · auto-compressed
+            </span>
+          </div>
+
+          <div className="flex gap-2">
+            <input
+              value={galleryUrlInput}
+              onChange={(e) => setGalleryUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addGalleryUrl();
+                }
+              }}
+              className="w-full border border-[var(--line)] bg-[var(--input-bg)] px-3 py-2.5 outline-none focus:border-[var(--forest)]"
+              placeholder="Or paste an image URL and click Add"
+            />
+            <button
+              type="button"
+              className="btn-ghost shrink-0 text-sm"
+              disabled={!galleryUrlInput.trim()}
+              onClick={addGalleryUrl}
+            >
+              <Plus size={16} />
+              Add
+            </button>
+          </div>
+        </div>
 
         <label className="flex items-center gap-2 text-sm font-semibold md:col-span-2">
           <input
